@@ -2,20 +2,32 @@
 
 import { FormEvent, useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client';
-let socket: Socket;
 
 export default function Chat() {
+    const [socket, setSocket] = useState<Socket | null>(null)
     const [message, setMessage] = useState('')
-    const [messages, setMessages] = useState([] as string[])
+    const [messages, setMessages] = useState<string[]>([])
 
     useEffect(() => {
-        socketInitializer()
+        const initSocket = async () => {
+            await fetch('/api/socket');
+            setSocket(io())
+        }
+
+        initSocket()
+
+        // TODO do this?
+        // return () => {
+        //     console.log("[unmounted]");
+        //     if (socket && socket.connected)
+        //         socket.disconnect();
+        // };
     }, [])
 
-    const socketInitializer = async () => {
-        await fetch('/api/socket');
-        socket = io()
-
+    useEffect(() => {
+        if (!socket)
+            return;
+        
         socket.on('connect', () => {
             console.log('connected')
         })
@@ -23,13 +35,17 @@ export default function Chat() {
         socket.on('message-received', msg => {
             setMessages(prevMessages => [...prevMessages, msg])
         })
-    }
+
+        return () => {
+            socket.off('message-received')
+        }
+    }, [socket])
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
         console.log("Running handle submit")
-        socket.emit('message', message)
+        if (socket) socket.emit('message', message)
         setMessages(prevMessages => [...prevMessages, message])
         setMessage("")
     }
