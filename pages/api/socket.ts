@@ -11,9 +11,9 @@ export default function SockerHandler(_req: NextApiRequest, res: NextApiResponse
     res.socket.server.io = io
 
     io.on('connection', socket => {
-      socket.on('input-change', msg => {
-        console.log('input change')
-        socket.broadcast.emit('update-input', msg)
+      socket.on('message', msg => {
+        console.log('message has been seen by the server', socket.id, msg)
+        socket.broadcast.emit('message-received', msg)
       })
     })
   }

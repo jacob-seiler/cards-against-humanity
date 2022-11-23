@@ -1,11 +1,12 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client';
 let socket: Socket;
 
 export default function Chat() {
-    const [input, setInput] = useState('')
+    const [message, setMessage] = useState('')
+    const [messages, setMessages] = useState([] as string[])
 
     useEffect(() => {
         socketInitializer()
@@ -19,21 +20,41 @@ export default function Chat() {
             console.log('connected')
         })
 
-        socket.on('update-input', msg => {
-            setInput(msg)
+        socket.on('message-received', msg => {
+            setMessages(prevMessages => [...prevMessages, msg])
         })
     }
 
-    const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-        setInput(e.target.value)
-        socket.emit('input-change', e.target.value)
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+
+        console.log("Running handle submit")
+        socket.emit('message', message)
+        setMessage("")
     }
 
     return (
-        <input
-            placeholder="Type something"
-            value={input}
-            onChange={onChangeHandler}
-        />
+        <>
+            <h2>Chat</h2>
+            {messages &&
+                <ul>
+                    {messages.map((message, i) => <li key={i}>{message}</li>)}
+                </ul>
+            }
+            <form onSubmit={handleSubmit}>
+                <input
+                    className='border border-black'
+                    placeholder="Type something"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                />
+                <button
+                    className='border border-black'
+                    type='submit'
+                >
+                    Send
+                </button>
+            </form>
+        </>
     )
 }
