@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client';
 let socket: Socket;
 
@@ -30,6 +30,7 @@ export default function Chat() {
 
         console.log("Running handle submit")
         socket.emit('message', message)
+        setMessages(prevMessages => [...prevMessages, message])
         setMessage("")
     }
 
