@@ -1,40 +1,20 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from 'react'
-import { io, Socket } from 'socket.io-client';
+import useSocket from './(sockets)/useSocket';
 
 export default function Chat() {
-    const [socket, setSocket] = useState<Socket | null>(null)
+    const { socket } = useSocket()
     const [message, setMessage] = useState('')
     const [messages, setMessages] = useState<string[]>([])
 
     useEffect(() => {
-        const initSocket = async () => {
-            await fetch('/api/socket');
-            setSocket(io())
-        }
-
-        initSocket()
-
-        // TODO do this?
-        // return () => {
-        //     console.log("[unmounted]");
-        //     if (socket && socket.connected)
-        //         socket.disconnect();
-        // };
-    }, [])
-
-    useEffect(() => {
         if (!socket)
             return;
-        
-        socket.on('connect', () => {
-            console.log('connected')
-        })
 
         socket.on('message-received', msg => {
             setMessages(prevMessages => [...prevMessages, msg])
-        })
+        });
 
         return () => {
             socket.off('message-received')
