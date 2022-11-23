@@ -2,17 +2,18 @@
 
 import { FormEvent, useEffect, useState } from 'react'
 import useSocket from './(sockets)/useSocket';
+import type { Message } from '../../types/socket';
 
 export default function Chat() {
     const { socket } = useSocket()
-    const [message, setMessage] = useState('')
-    const [messages, setMessages] = useState<string[]>([])
+    const [text, setText] = useState('')
+    const [messages, setMessages] = useState<Message[]>([])
 
     useEffect(() => {
         if (!socket)
             return;
 
-        socket.on('message-received', msg => {
+        socket.on('message-received', (msg: Message) => {
             setMessages(prevMessages => [...prevMessages, msg])
         });
 
@@ -25,9 +26,15 @@ export default function Chat() {
         e.preventDefault()
 
         console.log("Running handle submit")
-        if (socket) socket.emit('message', message)
-        setMessages(prevMessages => [...prevMessages, message])
-        setMessage("")
+        if (socket) socket.emit('message', text)
+        setMessages(prevMessages => [...prevMessages, { timestamp: new Date().getTime(), content: text }])
+        setText("")
+    }
+
+    const formatDate = (milliseconds: number): string => {
+        const date = new Date(milliseconds)
+        const [_, time, meridiem] = date.toLocaleString().split(" ")
+        return `${time.substring(0, time.length - 3)} ${meridiem}`
     }
 
     return (
@@ -35,15 +42,18 @@ export default function Chat() {
             <h2>Chat</h2>
             {messages &&
                 <ul>
-                    {messages.map((message, i) => <li key={i}>{message}</li>)}
+                    {messages.map((message, i) => {
+                        console.log(message)
+                        return <li key={i}>{`${formatDate(message.timestamp)} - ${message.content}`}</li>
+                    })}
                 </ul>
             }
             <form onSubmit={handleSubmit}>
                 <input
                     className='border border-black'
                     placeholder="Type something"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
                 />
                 <button
                     className='border border-black'

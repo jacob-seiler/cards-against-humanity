@@ -1,6 +1,7 @@
 import type { NextApiRequest } from "next";
 import type { NextApiResponseServerIO } from "../../types/next";
 import { Server } from 'socket.io'
+import type { Message } from "../../types/socket";
 
 export default function SockerHandler(_req: NextApiRequest, res: NextApiResponseServerIO) {
   if (res.socket.server.io) {
@@ -11,9 +12,13 @@ export default function SockerHandler(_req: NextApiRequest, res: NextApiResponse
     res.socket.server.io = io
 
     io.on('connection', socket => {
-      socket.on('message', msg => {
-        console.log('message has been seen by the server', socket.id, msg)
-        socket.broadcast.emit('message-received', msg)
+      socket.on('message', text => {
+        const message: Message = {
+          timestamp: new Date().getTime(),
+          content: text
+        }
+        
+        socket.broadcast.emit('message-received', message)
       })
     })
   }
