@@ -1,7 +1,8 @@
 import type { NextApiRequest } from "next";
 import type { NextApiResponseServerIO } from "../../types/next";
-import { Server } from 'socket.io'
 import type { Message } from "../../types/socket";
+import { EVENTS } from "../../types/socket";
+import { Server } from 'socket.io'
 
 export default function SockerHandler(_req: NextApiRequest, res: NextApiResponseServerIO) {
   if (res.socket.server.io) {
@@ -12,13 +13,13 @@ export default function SockerHandler(_req: NextApiRequest, res: NextApiResponse
     res.socket.server.io = io
 
     io.on('connection', socket => {
-      socket.on('message', text => {
+      socket.on(EVENTS.CLIENT.MESSAGE, text => {
         const message: Message = {
           timestamp: new Date().getTime(),
           content: text
         }
         
-        socket.broadcast.emit('message-received', message)
+        socket.broadcast.emit(EVENTS.SERVER.MESSAGE, message)
       })
     })
   }

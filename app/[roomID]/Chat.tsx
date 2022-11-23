@@ -1,8 +1,9 @@
 "use client";
 
+import type { Message } from '../../types/socket';
+import { EVENTS } from '../../types/socket';
 import { FormEvent, useEffect, useState } from 'react'
 import useSocket from './(sockets)/useSocket';
-import type { Message } from '../../types/socket';
 
 export default function Chat() {
     const { socket } = useSocket()
@@ -13,18 +14,18 @@ export default function Chat() {
         if (!socket)
             return;
 
-        socket.on('message-received', (msg: Message) => {
+        socket.on(EVENTS.SERVER.MESSAGE, (msg: Message) => {
             setMessages(prevMessages => [...prevMessages, msg])
         });
 
         return () => {
-            socket.off('message-received')
+            socket.off(EVENTS.SERVER.MESSAGE)
         }
     }, [socket])
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (socket) socket.emit('message', text)
+        if (socket) socket.emit(EVENTS.CLIENT.MESSAGE, text)
         setMessages(prevMessages => [...prevMessages, { timestamp: new Date().getTime(), content: text }])
         setText("")
     }

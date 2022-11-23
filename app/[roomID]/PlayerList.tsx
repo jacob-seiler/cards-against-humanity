@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { EVENTS } from "../../types/socket";
 import useSocket from "./(sockets)/useSocket";
 
 export default function PlayerList() {
@@ -11,17 +12,17 @@ export default function PlayerList() {
         if (!socket)
             return
 
-        socket.on('player-join', (player) => {
+        socket.on(EVENTS.SERVER.PLAYER_JOIN, (player) => {
             setPlayers(prevPlayers => [...prevPlayers, player])
         })
 
-        socket.on('player-leave', (player) => {
+        socket.on(EVENTS.SERVER.PLAYER_LEAVE, (player) => {
             setPlayers(prevPlayers => prevPlayers.filter(p => p !== player))
         })
 
         return () => {
-            socket.off('player-join')
-            socket.off('player-leave')
+            socket.off(EVENTS.SERVER.PLAYER_JOIN)
+            socket.off(EVENTS.SERVER.PLAYER_LEAVE)
         }
     }, [socket])
 
