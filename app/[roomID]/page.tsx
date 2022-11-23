@@ -7,14 +7,14 @@ import SocketProvider from "./(sockets)/SocketProvider";
 export default function RoomPage() {
     return (
         <SocketProvider>
-            <div className="gird grid-cols-3">
+            <div className="gird grid-cols-3 flex gap-4">
                 <div>
                     <PlayerList />
                 </div>
-                <div>
-                    {/* <h2>Rules / Game</h2> */}
+                <div className="mx-auto">
+                    <h2>Rules / Game</h2>
                 </div>
-                <div>
+                <div className="ml-auto">
                     <Chat />
                 </div>
             </div>
