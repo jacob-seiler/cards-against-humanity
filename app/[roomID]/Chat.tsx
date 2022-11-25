@@ -26,7 +26,7 @@ export default function Chat() {
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (socket) socket.emit(EVENTS.CLIENT.MESSAGE, text)
-        setMessages(prevMessages => [...prevMessages, { timestamp: new Date().getTime(), content: text }])
+        setMessages(prevMessages => [...prevMessages, { timestamp: new Date().getTime(), content: text, from: "You" }])
         setText("")
     }
 
@@ -42,7 +42,7 @@ export default function Chat() {
             {messages &&
                 <ul>
                     {messages.map((message, i) => {
-                        return <li key={i}>{`${formatDate(message.timestamp)} - ${message.content}`}</li>
+                        return <li key={i}>{`${message.from}: ${message.content} - ${formatDate(message.timestamp)}`}</li>
                     })}
                 </ul>
             }

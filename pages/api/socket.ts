@@ -16,7 +16,8 @@ export default function SockerHandler(_req: NextApiRequest, res: NextApiResponse
       socket.on(EVENTS.CLIENT.MESSAGE, text => {
         const message: Message = {
           timestamp: new Date().getTime(),
-          content: text
+          content: text,
+          from: socket.id // TODO temp
         }
         
         socket.broadcast.emit(EVENTS.SERVER.MESSAGE, message)
