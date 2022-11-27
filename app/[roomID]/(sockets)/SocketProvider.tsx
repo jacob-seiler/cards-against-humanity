@@ -19,6 +19,7 @@ export default function SocketProvider({ children }: { children: React.ReactNode
             if (socket && socket.connected)
                 socket.disconnect();
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
