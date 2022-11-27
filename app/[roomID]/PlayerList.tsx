@@ -4,25 +4,28 @@ import { useEffect, useState } from "react";
 import { EVENTS } from "../../types/socket";
 import useSocket from "./(sockets)/useSocket";
 
-export default function PlayerList() {
+interface PlayerListProps {
+    name: string;
+}
+
+export default function PlayerList({ name }: PlayerListProps) {
     const { socket } = useSocket()
-    const [players, setPlayers] = useState<string[]>(['You'])
+    const [players, setPlayers] = useState<string[]>([])
 
     useEffect(() => {
         if (!socket)
             return;
 
         socket.on(EVENTS.SERVER.WELCOME, (names: string[]) => {
-            setPlayers(["You", ...names])
+            setPlayers([...names])
         });
 
-        socket.on(EVENTS.SERVER.PLAYER_JOIN, (name: string) => {
-            setPlayers(prevPlayers => [...prevPlayers, name])
+        socket.on(EVENTS.SERVER.PLAYER_JOIN, (n: string) => {
+            setPlayers(prevPlayers => [...prevPlayers, n])
         });
 
-        socket.on(EVENTS.SERVER.PLAYER_LEAVE, (name: string) => {
-            console.log('removing', name)
-            setPlayers(prevPlayers => prevPlayers.filter(p => p !== name))
+        socket.on(EVENTS.SERVER.PLAYER_LEAVE, (n: string) => {
+            setPlayers(prevPlayers => prevPlayers.filter(p => p !== n))
         });
 
         return () => {
@@ -36,6 +39,7 @@ export default function PlayerList() {
             <h2>Players</h2>
             {players &&
                 <ul>
+                    <li>{ name } (You)</li>
                     {players.map((player, i) => <li key={i}>{player}</li>)}
                 </ul>
             }
