@@ -6,8 +6,16 @@ import SocketContext from "./SocketContext";
 
 export default function SocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useState<Socket | null>(null);
+    const [fetchSocket, setFetchSocket] = useState(false);
 
     useEffect(() => {
+        setFetchSocket(true)
+    }, [])
+
+    useEffect(() => {
+        if (!fetchSocket)
+            return
+
         const initSocket = async () => {
             await fetch('/api/socket')
             setSocket(io())
@@ -18,9 +26,9 @@ export default function SocketProvider({ children }: { children: React.ReactNode
         return () => {
             if (socket && socket.connected)
                 socket.disconnect();
-        };
+        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [fetchSocket])
 
     useEffect(() => {
         if (!socket) return;
