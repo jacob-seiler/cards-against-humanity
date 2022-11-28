@@ -18,12 +18,12 @@ export default function SockerHandler(_req: NextApiRequest, res: NextApiResponse
   res.socket.server.io = io
 
   io.on('connection', socket => {
-    socket.emit(EVENTS.SERVER.WELCOME, Array.from(names.values()))
+    socket.emit(EVENTS.SERVER.WELCOME, Object.fromEntries(names))
     names.set(socket.id, socket.id)
-    socket.broadcast.emit(EVENTS.SERVER.PLAYER_JOIN, names.get(socket.id))
+    socket.broadcast.emit(EVENTS.SERVER.PLAYER_JOIN, socket.id, names.get(socket.id))
 
     socket.on('disconnect', _ => {
-      socket.broadcast.emit(EVENTS.SERVER.PLAYER_LEAVE, names.get(socket.id))
+      socket.broadcast.emit(EVENTS.SERVER.PLAYER_LEAVE, socket.id)
       names.delete(socket.id)
     })
 
@@ -35,6 +35,11 @@ export default function SockerHandler(_req: NextApiRequest, res: NextApiResponse
       }
       
       socket.broadcast.emit(EVENTS.SERVER.MESSAGE, message)
+    })
+
+    socket.on(EVENTS.CLIENT.UPDATE_NAME, name => {
+      names.set(socket.id, name)
+      socket.broadcast.emit(EVENTS.SERVER.PLAYER_RENAMED, socket.id, name)
     })
   })
 
