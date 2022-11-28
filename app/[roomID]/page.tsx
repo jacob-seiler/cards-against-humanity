@@ -3,15 +3,20 @@
 import Chat from "./Chat"
 import PlayerList from "./PlayerList"
 import SocketProvider from "./(sockets)/SocketProvider";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 export default function RoomPage() {
     const [text, setText] = useState("")
     const [name, setName] = useState<string | null>(null)
 
+    useEffect(() => {
+        setText(localStorage.getItem("name") ?? "")
+    }, [])
+
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setName(text)
+        localStorage.setItem("name", text)
     }
 
     if (!name)
